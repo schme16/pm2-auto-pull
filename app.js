@@ -18,16 +18,12 @@ function autoPull(cb) {
 			if (proc.pm2_env && proc.pm2_env.versioning) {
 				pm2.pullAndReload(proc.name, function(err, meta) {
 					if (meta) {
-						app_updated.inc();
-						
+						app_updated.inc();						
 						console.log('>>>>>>>>>>>>> Successfully pulled Application! [App name: %s]', proc.name)
-						console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSON.stringify(proc))
 					}
 					if (err) {
 						
 						console.log('App %s already at latest version', proc.name);
-						console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSON.stringify(proc))
-						console.log('DATA:' +  JSON.stringify(proc))
 					}
 					
 					exec('npm prune', {
