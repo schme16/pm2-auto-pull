@@ -26,6 +26,7 @@ function autoPull(cb) {
           if (err)
             console.log('App %s already at latest version', proc.name);
             console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSON.stringify(proc))
+            console.log('DATA:' +  JSON.stringify(proc))
           return next();
         });
       }
