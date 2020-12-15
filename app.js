@@ -1,76 +1,89 @@
 
-var pmx     = require('pmx');
-var pm2     = require('pm2');
-var async   = require('async');
-var pkg     = require('./package.json');
+let pmx = require('pmx');
+	pm2 = require('pm2'),
+	async = require('async'),
+	pkg = require('./package.json'),
+	exec = require('child_process').exe,
+	Probe = pmx.probe(),
+	app_updated = Probe.counter({
+		name : 'Updates'
+	})
 
-var Probe = pmx.probe();
-
-var app_updated = Probe.counter({
-  name : 'Updates'
-});
 
 function autoPull(cb) {
-  pm2.list(function(err, procs) {
-    if (err) return console.error(err);
+	pm2.list(function(err, procs) {
+		if (err) return console.error(err);
 
-    async.forEachLimit(procs, 1, function(proc, next) {
-      if (proc.pm2_env && proc.pm2_env.versioning) {
-        pm2.pullAndReload(proc.name, function(err, meta) {
-          if (meta) {
-            app_updated.inc();
-            
-            console.log('>>>>>>>>>>>>> Successfully pulled Application! [App name: %s]', proc.name)
-            console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSON.stringify(proc))
-          }
-          if (err)
-            console.log('App %s already at latest version', proc.name);
-            console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSON.stringify(proc))
-            console.log('DATA:' +  JSON.stringify(proc))
-          return next();
-        });
-      }
-      else next();
-    }, cb);
+		async.forEachLimit(procs, 1, function(proc, next) {
+			if (proc.pm2_env && proc.pm2_env.versioning) {
+				pm2.pullAndReload(proc.name, function(err, meta) {
+					if (meta) {
+						app_updated.inc();
+						
+						console.log('>>>>>>>>>>>>> Successfully pulled Application! [App name: %s]', proc.name)
+						console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSON.stringify(proc))
+					}
+					if (err) {
+						
+						console.log('App %s already at latest version', proc.name);
+						console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSON.stringify(proc))
+						console.log('DATA:' +  JSON.stringify(proc))
+					}
+					
+					exec('npm prune', {
+						cwd: proc.versioning.repo_path
+					}, function(error, stdout, stderr) {
+						exec('npm install', {
+							cwd: proc.versioning.repo_path
+						}, function(error, stdout, stderr) {
 
-  });
+						})
+					});
+					
+					return next();
+				});
+			}
+			else next();
+		}, cb);
+
+	});
 }
 
 pmx.initModule({
-  widget : {
-    type             : 'generic',
-    theme            : ['#111111', '#1B2228', '#807C7C', '#807C7C'],
+	widget : {
+		type             : 'generic',
+		theme            : ['#111111', '#1B2228', '#807C7C', '#807C7C'],
 
-    el : {
-      probes  : true,
-      actions : true
-    },
+		el : {
+			probes  : true,
+			actions : true
+		},
 
-    block : {
-      actions : true,
-      issues  : true,
-      meta : true,
-      cpu: true,
-      mem: true
-    }
+		block : {
+			actions : true,
+			issues  : true,
+			meta : true,
+			cpu: true,
+			mem: true
+		}
 
-    // Status
-    // Green / Yellow / Red
-  }
+		// Status
+		// Green / Yellow / Red
+	}
 }, function(err, conf) {
-  pm2.connect(function() {
-    console.log('pm2-auto-pull module connected to pm2');
+	pm2.connect(function() {
+		console.log('pm2-auto-pull module connected to pm2');
 
-    var running = false;
+		var running = false;
 
-    setInterval(function() {
-      if (running == true) return false;
+		setInterval(function() {
+			if (running == true) return false;
 
-      running = true;
-      autoPull(function() {
-        running = false;
-      });
-    }, conf.interval || 30000);
+			running = true;
+			autoPull(function() {
+				running = false;
+			});
+		}, conf.interval || 30000);
 
-  });
+	});
 });
