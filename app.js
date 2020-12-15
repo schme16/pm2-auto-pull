@@ -2,7 +2,7 @@ let pmx = require('pmx');
 	pm2 = require('pm2'),
 	async = require('async'),
 	pkg = require('./package.json'),
-	exec = require('child_process').exe,
+	exec = require('child_process').exec,
 	Probe = pmx.probe(),
 	app_updated = Probe.counter({
 		name : 'Updates'
@@ -24,6 +24,7 @@ function autoPull(cb) {
 						
 						console.log('App %s already at latest version', proc.name);
 					}
+
 					if (proc && proc.pm2_env && proc.pm2_env.versioning && proc.pm2_env.versioning.repo_path) {
 
 						let path = proc.pm2_env.versioning.repo_path
