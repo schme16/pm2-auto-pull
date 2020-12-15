@@ -21,7 +21,7 @@ function autoPull(cb) {
             app_updated.inc();
             
             console.log('>>>>>>>>>>>>> Successfully pulled Application! [App name: %s]', proc.name)
-            console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSONstringify(proc))
+            console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSON.stringify(proc))
           }
           if (err)
             console.log('App %s already at latest version', proc.name);
