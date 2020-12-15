@@ -1,6 +1,6 @@
 {
   "name": "pm2-auto-pull",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "PM2 module to auto pull applications when there is an update",
   "main": "app",
   "scripts": {
