@@ -1,4 +1,3 @@
-
 let pmx = require('pmx');
 	pm2 = require('pm2'),
 	async = require('async'),
@@ -25,16 +24,19 @@ function autoPull(cb) {
 						
 						console.log('App %s already at latest version', proc.name);
 					}
-					
-					exec('npm prune', {
-						cwd: proc.versioning.repo_path
-					}, function(error, stdout, stderr) {
-						exec('npm install', {
-							cwd: proc.versioning.repo_path
-						}, function(error, stdout, stderr) {
+					if (proc && proc.pm2_env && proc.pm2_env.versioning && proc.pm2_env.versioning.repo_path) {
 
-						})
-					});
+						let path = proc.pm2_env.versioning.repo_path
+						exec('npm prune', {
+							cwd: path
+						}, function(error, stdout, stderr) {
+							exec('npm install', {
+								cwd: path
+							}, function(error, stdout, stderr) {
+
+							})
+						});
+					}
 					
 					return next();
 				});
