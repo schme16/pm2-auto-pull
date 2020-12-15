@@ -19,8 +19,9 @@ function autoPull(cb) {
         pm2.pullAndReload(proc.name, function(err, meta) {
           if (meta) {
             app_updated.inc();
-
+            
             console.log('>>>>>>>>>>>>> Successfully pulled Application! [App name: %s]', proc.name)
+            console.log('>>>>>>>>>>>>> !!!!DATA!!!!', JSONstringify(proc))
           }
           if (err)
             console.log('App %s already at latest version', proc.name);
